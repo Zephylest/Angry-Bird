@@ -1,5 +1,6 @@
 var GL;
 
+// Richard Kamitono C14220267
 function generateEllipsoid(xrad, yrad, zrad, step, stack, red, green, blue, xtrans, ytrans, ztrans) {
     var vertices = [];
     var faces = [];
@@ -526,6 +527,142 @@ function generateNose(step) {
 
     return { "vertices": vertices, "faces": faces };
 }
+
+// Kiko 
+function generateSphereVertices(offsetX, offsetY, offsetZ, radius, stacks, slices, colorX, colorY, colorZ) {
+    var vertices = [];
+    var PI = Math.PI;
+
+    for (var i = 0; i <= stacks; ++i) {
+        var theta = i * PI / stacks;
+        var sinTheta = Math.sin(theta);
+        var cosTheta = Math.cos(theta);
+
+        for (var j = 0; j <= slices; ++j) {
+            var phi = j * 2 * PI / slices;
+            var sinPhi = Math.sin(phi);
+            var cosPhi = Math.cos(phi);
+
+            var x = (cosPhi * sinTheta);
+            var y = cosTheta;
+            var z = (sinPhi * sinTheta);
+
+            vertices.push(offsetX + (radius * x), offsetY + (radius * y), offsetZ + (radius * z));
+            vertices.push(colorX, colorY, colorZ);
+        }
+    }
+
+    return vertices;
+}
+
+function generateEllipticParaboloidVertices(offsetX, offsetY, offsetZ, radius, stacks, slices, a, b, c, colorX, colorY, colorZ) {
+    var vertices = [];
+    var PI = Math.PI;
+
+    for (var i = 0; i <= stacks; ++i) {
+        var u = i / stacks;
+
+        for (var j = 0; j <= slices; ++j) {
+            var v = j * 2 * Math.PI / slices;
+
+            var x = (a * u * Math.cos(v)) + offsetX;
+            var y = (b * u * Math.sin(v)) + offsetY;
+            var z = (c * u * u) + offsetZ;
+
+            vertices.push(radius * x, radius * y, radius * z);
+            vertices.push(colorX, colorY, colorZ);
+        }
+    }
+
+    return vertices;
+}
+
+function generateCurvedTube(offsetX, offsetY, offsetZ, radius, tubeRadius, segments, angleDegrees, colorX, colorY, colorZ) {
+    const vertices = [];
+    const angleRadians = (angleDegrees * Math.PI) / 180;
+    const deltaTheta = angleRadians / segments; // Angle between each segment along the curve
+    const deltaPhi = (2 * Math.PI) / segments; // Angle between points in the tube's cross-section
+
+    // Loop through each segment of the curve
+    for (let i = 0; i <= segments; i++) {
+        const theta = deltaTheta * i;
+        const x = radius * Math.sin(theta); // x-coordinate of the center of the tube segment
+        const z = radius * (1 - Math.cos(theta)); // z-coordinate of the center of the tube segment
+
+        // Loop through each segment of the cross-section
+        for (let j = 0; j <= segments; j++) {
+            const phi = deltaPhi * j;
+            const cosPhi = Math.cos(phi);
+            const sinPhi = Math.sin(phi);
+
+            // Calculate the vertex position
+            const vz = (x + tubeRadius * cosPhi) + offsetZ;
+            const vx = (tubeRadius * sinPhi) + offsetX;
+            const vy = z + offsetY;
+
+            // Push the vertex to the list
+            vertices.push(vx, vy, vz);
+            vertices.push(colorX, colorY, colorZ)
+        }
+    }
+
+    return vertices;
+}
+
+function createBoxVertices(offsetX, offsetY, offsetZ, width, height, depth, angleY, colorX, colorY, colorZ) {
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
+    const halfDepth = depth / 2;
+
+    // Calculate sine and cosine of the rotation angle
+    const sinAngleY = Math.sin(angleY);
+    const cosAngleY = Math.cos(angleY);
+
+    // Define the vertices of the box
+    const vertices = [
+        // Front face
+        -halfWidth + offsetX, -halfHeight + offsetY, halfDepth + offsetZ, colorX, colorY, colorZ,
+        halfWidth + offsetX, -halfHeight + offsetY, halfDepth + offsetZ, colorX, colorY, colorZ,
+        halfWidth + offsetX, halfHeight + offsetY, halfDepth + offsetZ, colorX, colorY, colorZ,
+        -halfWidth + offsetX, halfHeight + offsetY, halfDepth + offsetZ, colorX, colorY, colorZ,
+        // Back face
+        -halfWidth + offsetX, -halfHeight + offsetY, -halfDepth + offsetZ, colorX, colorY, colorZ,
+        -halfWidth + offsetX, halfHeight + offsetY, -halfDepth + offsetZ, colorX, colorY, colorZ,
+        halfWidth + offsetX, halfHeight + offsetY, -halfDepth + offsetZ, colorX, colorY, colorZ,
+        halfWidth + offsetX, -halfHeight + offsetY, -halfDepth + offsetZ, colorX, colorY, colorZ,
+        // Top face
+        -halfWidth + offsetX, halfHeight + offsetY, -halfDepth + offsetZ, colorX, colorY, colorZ,
+        -halfWidth + offsetX, halfHeight + offsetY, halfDepth + offsetZ, colorX, colorY, colorZ,
+        halfWidth + offsetX, halfHeight + offsetY, halfDepth + offsetZ, colorX, colorY, colorZ,
+        halfWidth + offsetX, halfHeight + offsetY, -halfDepth + offsetZ, colorX, colorY, colorZ,
+        // Bottom face
+        -halfWidth + offsetX, -halfHeight + offsetY, -halfDepth + offsetZ, colorX, colorY, colorZ,
+        halfWidth + offsetX, -halfHeight + offsetY, -halfDepth + offsetZ, colorX, colorY, colorZ,
+        halfWidth + offsetX, -halfHeight + offsetY, halfDepth + offsetZ, colorX, colorY, colorZ,
+        -halfWidth + offsetX, -halfHeight + offsetY, halfDepth + offsetZ, colorX, colorY, colorZ,
+        // Right face
+        halfWidth + offsetX, -halfHeight + offsetY, -halfDepth + offsetZ, colorX, colorY, colorZ,
+        halfWidth + offsetX, halfHeight + offsetY, -halfDepth + offsetZ, colorX, colorY, colorZ,
+        halfWidth + offsetX, halfHeight + offsetY, halfDepth + offsetZ, colorX, colorY, colorZ,
+        halfWidth + offsetX, -halfHeight + offsetY, halfDepth + offsetZ, colorX, colorY, colorZ,
+        // Left face
+        -halfWidth + offsetX, -halfHeight + offsetY, -halfDepth + offsetZ, colorX, colorY, colorZ,
+        -halfWidth + offsetX, -halfHeight + offsetY, halfDepth + offsetZ, colorX, colorY, colorZ,
+        -halfWidth + offsetX, halfHeight + offsetY, halfDepth + offsetZ, colorX, colorY, colorZ,
+        -halfWidth + offsetX, halfHeight + offsetY, -halfDepth + offsetZ, colorX, colorY, colorZ,
+    ];
+
+    // Rotate vertices around the y-axis
+    for (let i = 0; i < vertices.length; i += 6) {
+        // Apply rotation around the x-axis
+        const y = vertices[i + 1];
+        const z = vertices[i + 2];
+        vertices[i + 1] = y * cosAngleY - z * sinAngleY;
+        vertices[i + 2] = y * sinAngleY + z * cosAngleY;
+    }
+
+    return vertices;
+}
 class MyObject {
     canvas = null;
     vertex = [];
@@ -760,6 +897,7 @@ function main() {
 
     LIBS.translateZ(VIEW_MATRIX, -20);
 
+    // Richard 
     var headRaw = generateEllipsoid(1.35, 1.16, 1.1, 100, 100, 0.43, 0.89, 0.28, 0, 0, 0);
     var head = new MyObject(headRaw['vertices'], headRaw['faces'], shader_vertex_source, shader_fragment_source);
     head.setup();
@@ -793,6 +931,127 @@ function main() {
     var eyebrow = new MyObject(eyebrowRaw['vertices'], eyebrowRaw['faces'], shader_vertex_source, shader_fragment_source);
     eyebrow.setup();
     head.child.push(eyebrow);
+
+    //Kiko
+    var sphere = generateSphereVertices(0, 0, 0, 2, 20, 20, 0.043, 0.7, 0.94); //0,0,0,0.5,20,20,20,1,1,1
+    var LeftEye = generateSphereVertices(-0.5, 0.2, 1.4, 0.8, 20, 20, 1, 1, 1);
+    var RightEye = generateSphereVertices(0.5, 0.2, 1.4, 0.8, 20, 20, 1, 1, 1);
+    var leftPupil = generateSphereVertices(-0.5, 0.2, 2, 0.25, 20, 20, 0, 0, 0);
+    var RightPupil = generateSphereVertices(0.5, 0.2, 2, 0.25, 20, 20, 0, 0, 0);
+    var LeftSocket1 = generateSphereVertices(-0.5, 0.2, 1.4, 0.86, 20, 20, 0.89, 0.035, 0.263);
+    var RightSocket1 = generateSphereVertices(0.5, 0.2, 1.4, 0.86, 20, 20, 0.89, 0.035, 0.263);
+    var topBeak = generateEllipticParaboloidVertices(0, -0.8, 4.5, 0.7, 20, 20, 0.7, 1.2, -2, 0.988, 0.976, 0.051);
+    var bottomBeak = generateEllipticParaboloidVertices(0, 0.75, 4, 0.7, 20, 20, 0.7, 0.7, -2, 0.89, 0.875, 0.039);
+    var feather1 = generateCurvedTube(0, 0.6, -0.5, 1, 0.3, 30, 170, 0.043, 0.7, 0.94)
+    var feather2 = generateCurvedTube(0, 0.35, -1.6, 1, 0.3, 30, 160, 0.043, 0.7, 0.94)
+    var backFeather1 = createBoxVertices(0, -0.5, -2.2, 0.1, 0.3, 0.7, 0.3, 0.027, 0.086, 0.271);
+    var backFeather2 = createBoxVertices(0, 1, -2, 0.1, 0.3, 0.7, -0.7, 0.027, 0.086, 0.271);
+
+    var sphere_faces = [
+        // 0,1,2
+    ]
+
+    for (let index = 21; index < 441; index++) {
+        sphere_faces.push(index);
+        sphere_faces.push(index + 1);
+        sphere_faces.push(index - 21);
+
+        sphere_faces.push(index + 1);
+        sphere_faces.push(index - 21);
+        sphere_faces.push(index - 20);
+
+    }
+
+    var left_socket_faces = [
+
+    ]
+    var right_socket_faces = [
+
+    ]
+
+    for (let index = 286; index < 420; index++) {
+        left_socket_faces.push(index);
+        left_socket_faces.push(index + 1);
+        left_socket_faces.push(index - 21);
+
+        left_socket_faces.push(index + 1);
+        left_socket_faces.push(index - 21);
+        left_socket_faces.push(index - 20);
+
+        right_socket_faces.push(index);
+        right_socket_faces.push(index + 1);
+        right_socket_faces.push(index - 21);
+
+        right_socket_faces.push(index + 1);
+        right_socket_faces.push(index - 21);
+        right_socket_faces.push(index - 20);
+
+    }
+
+    var topBeak_faces = [
+
+    ]
+
+    for (let index = 21; index < 460; index++) {
+
+        if (index % 21 < 10) {
+            topBeak_faces.push(index);
+            topBeak_faces.push(index + 1);
+            topBeak_faces.push(index - 21);
+
+            topBeak_faces.push(index + 1);
+            topBeak_faces.push(index - 21);
+            topBeak_faces.push(index - 20);
+        }
+    }
+
+    var feather_faces = [
+
+    ]
+
+    for (let index = 0; index < 900; index++) {
+        feather_faces.push(index);
+        feather_faces.push(index + 1);
+        feather_faces.push(index + 30);
+
+        feather_faces.push(index + 30);
+        feather_faces.push(index + 31);
+        feather_faces.push(index + 1);
+    }
+
+    const indices = [
+        // Front face
+        0, 1, 2,
+        0, 2, 3,
+        // Back face
+        4, 5, 6,
+        4, 6, 7,
+        // Top face
+        8, 9, 10,
+        8, 10, 11,
+        // Bottom face
+        12, 13, 14,
+        12, 14, 15,
+        // Right face
+        16, 17, 18,
+        16, 18, 19,
+        // Left face
+        20, 21, 22,
+        20, 22, 23
+    ];
+
+    left_socket_faces.push(261, 262, 240, 262, 240, 241, 260, 261, 240);
+    left_socket_faces.push(282, 283, 261, 283, 261, 262);
+    left_socket_faces.push(281, 282, 260, 282, 260, 261, 280, 281, 260);
+    left_socket_faces.push(275, 276, 254, 276, 254, 255, 276, 277, 255);
+    left_socket_faces.push(277, 255, 256, 277, 278, 256);
+
+    right_socket_faces.push(279, 280, 279 - 21, 280, 279 - 21, 279 + 1, 278, 279, 278 - 20);
+    right_socket_faces.push(279 + 1, 279 - 21, 279 - 20);
+    right_socket_faces.push(278, 278 + 1, 278 - 20, 274, 274 + 1, 274 - 21, 274 + 1, 274 - 21, 274 - 20);
+    right_socket_faces.push(273, 273 + 1, 273 - 21, 273 + 1, 273 - 21, 273 - 20);
+    right_socket_faces.push(252, 252 + 1, 252 - 21, 252 + 1, 252 - 21, 252 - 20, 275 + 1, 275, 275 - 21, 253 + 1, 253, 253 - 21);
+
 
     /*========================= DRAWING ========================= */
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
