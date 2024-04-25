@@ -665,31 +665,31 @@ function createBoxVertices(offsetX, offsetY, offsetZ, width, height, depth, angl
 }
 
 // Steve
-function generateParallelogramVertices(width, height, thickness) {
+function generateParallelogramVertices(width, height, thickness, offsetX, offsetY, offsetZ) {
     const vertices = [
         // Front face
-        -width / 2, 0.0, 0.0, 0.0, 0.0, 0.0,
-        width / 2, 0.0, 0.0, 0.0, 0.0, 0.0,
-        width / 2 - thickness, height, 0.0, 0.0, 0.0, 0.0,
-        -width / 2 - thickness, height, 0.0, 0.0, 0.0, 0.0,
+        -width / 2 + offsetX, 0.0 + offsetY, 0.0 + offsetZ, 0.0, 0.0, 0.0,
+        width / 2 + offsetX, 0.0 + offsetY, 0.0 + offsetZ, 0.0, 0.0, 0.0,
+        width / 2 - thickness + offsetX, height + offsetY, 0.0 + offsetZ, 0.0, 0.0, 0.0,
+        -width / 2 - thickness + offsetX, height + offsetY, 0.0 + offsetZ, 0.0, 0.0, 0.0,
 
         // Back face
-        -width / 2, 0.0, thickness, 0.0, 0.0, 0.0,
-        width / 2, 0.0, thickness, 0.0, 0.0, 0.0,
-        width / 2 - thickness, height, thickness, 0.0, 0.0, 0.0,
-        -width / 2 - thickness, height, thickness, 0.0, 0.0, 0.0,
+        -width / 2 + offsetX, 0.0 + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
+        width / 2 + offsetX, 0.0 + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
+        width / 2 - thickness + offsetX, height + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
+        -width / 2 - thickness + offsetX, height + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
 
         // Top face
-        -width / 2 - thickness, height, 0.0, 0.0, 0.0, 0.0,
-        width / 2 - thickness, height, 0.0, 0.0, 0.0, 0.0,
-        width / 2 - thickness, height, thickness, 0.0, 0.0, 0.0,
-        -width / 2 - thickness, height, thickness, 0.0, 0.0, 0.0,
+        -width / 2 - thickness + offsetX, height + offsetY, 0.0 + offsetZ, 0.0, 0.0, 0.0,
+        width / 2 - thickness + offsetX, height + offsetY, 0.0 + offsetZ, 0.0, 0.0, 0.0,
+        width / 2 - thickness + offsetX, height + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
+        -width / 2 - thickness + offsetX, height + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
 
         // Bottom face
-        -width / 2, 0.0, 0.0, 0.0, 0.0, 0.0,
-        width / 2, 0.0, 0.0, 0.0, 0.0, 0.0,
-        width / 2, 0.0, thickness, 0.0, 0.0, 0.0,
-        -width / 2, 0.0, thickness, 0.0, 0.0, 0.0,
+        -width / 2 + offsetX, 0.0 + offsetY, 0.0 + offsetZ, 0.0, 0.0, 0.0,
+        width / 2 + offsetX, 0.0 + offsetY, 0.0 + offsetZ, 0.0, 0.0, 0.0,
+        width / 2 + offsetX, 0.0 + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
+        -width / 2 + offsetX, 0.0 + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
 
         // Right face
         width / 2, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -705,7 +705,7 @@ function generateParallelogramVertices(width, height, thickness) {
     ];
     return vertices;
 }
-function generateEyelidVertices(radius, sectorCount, stackCount) {
+function generateEyelidVertices(radius, sectorCount, stackCount, offsetX, offsetY, offsetZ) {
     let vertices = [];
     let normals = [];
     let texCoords = [];
@@ -720,16 +720,30 @@ function generateEyelidVertices(radius, sectorCount, stackCount) {
     for (let i = 0; i <= stackCount / 2.5; ++i) {
         stackAngle = Math.PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
         xy = radius * Math.cos(stackAngle);             // r * cos(u)
-        z = radius * Math.sin(stackAngle);              // r * sin(u)
 
         // add (sectorCount+1) vertices per stack
         // first and last vertices have same position and normal, but different tex coords
         for (let j = 0; j <= sectorCount; ++j) {
+            z = radius * Math.sin(stackAngle);              // r * sin(u)
             sectorAngle = j * sectorStep;           // starting from 0 to 2pi
 
             // vertex position (x, y, z)
             x = xy * Math.cos(sectorAngle);             // r * cos(u) * cos(v)
             y = xy * Math.sin(sectorAngle);             // r * cos(u) * sin(v)
+
+            // Apply rotation around x-axis
+            var newX = x;
+            var newY = y * Math.cos(-90) - z * Math.sin(-90);
+            var newZ = y * Math.sin(-90) + z * Math.cos(-90);
+
+            x = newX;
+            y = newY;
+            z = newZ;
+
+            x += offsetX;
+            y += offsetY;
+            z += offsetZ;
+
             vertices.push(x);
             vertices.push(y);
             vertices.push(z);
@@ -771,16 +785,29 @@ function generateBottomBeakVertices(radius, sectorCount, stackCount) {
     for (let i = 0; i <= stackCount / 2; ++i) {
         stackAngle = Math.PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
         xy = radius * Math.cos(stackAngle);             // r * cos(u)
-        z = radius * Math.sin(stackAngle);              // r * sin(u)
 
         // add (sectorCount+1) vertices per stack
         // first and last vertices have same position and normal, but different tex coords
         for (let j = 0; j <= sectorCount; ++j) {
+            z = radius * stackAngle * stackAngle;          // r * sin(u)
             sectorAngle = j * sectorStep;           // starting from 0 to 2pi
 
             // vertex position (x, y, z)
             x = xy * Math.cos(sectorAngle);             // r * cos(u) * cos(v)
             y = xy * Math.sin(sectorAngle);             // r * cos(u) * sin(v)
+
+            // Apply rotation around x-axis
+            var newX = x;
+            var newY = y * Math.cos(90) - z * Math.sin(90);
+            var newZ = y * Math.sin(90) + z * Math.cos(90);
+
+            x = newX;
+            y = newY;
+            z = newZ;
+
+            y -= 1.85;
+            z += 6.9;
+
             vertices.push(x);
             vertices.push(y);
             vertices.push(z);
@@ -807,7 +834,7 @@ function generateBottomBeakVertices(radius, sectorCount, stackCount) {
     }
     return vertices;
 }
-function generateEyeBallVertices(radius, sectorCount, stackCount) {
+function generateEyeBallVertices(radius, sectorCount, stackCount, offsetX, offsetY, offsetZ) {
     let vertices = [];
     let normals = [];
     let texCoords = [];
@@ -822,16 +849,21 @@ function generateEyeBallVertices(radius, sectorCount, stackCount) {
     for (let i = 0; i <= stackCount; ++i) {
         stackAngle = Math.PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
         xy = radius * Math.cos(stackAngle);             // r * cos(u)
-        z = radius * Math.sin(stackAngle);              // r * sin(u)
-
+        
         // add (sectorCount+1) vertices per stack
         // first and last vertices have same position and normal, but different tex coords
         for (let j = 0; j <= sectorCount; ++j) {
+            z = radius * Math.sin(stackAngle);              // r * sin(u)
             sectorAngle = j * sectorStep;           // starting from 0 to 2pi
 
             // vertex position (x, y, z)
             x = xy * Math.cos(sectorAngle);             // r * cos(u) * cos(v)
             y = xy * Math.sin(sectorAngle);             // r * cos(u) * sin(v)
+
+            x += offsetX;
+            y += offsetY;
+            z += offsetZ;
+
             vertices.push(x);
             vertices.push(y);
             vertices.push(z);
@@ -858,7 +890,7 @@ function generateEyeBallVertices(radius, sectorCount, stackCount) {
     }
     return vertices;
 }
-function generateCheekVertices(radius, sectorCount, stackCount) {
+function generateCheekVertices(radius, sectorCount, stackCount, offsetX, offsetY, offsetZ) {
     let vertices = [];
     let normals = [];
     let texCoords = [];
@@ -873,16 +905,31 @@ function generateCheekVertices(radius, sectorCount, stackCount) {
     for (let i = 0; i <= stackCount; ++i) {
         stackAngle = Math.PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
         xy = radius * Math.cos(stackAngle);             // r * cos(u)
-        z = radius * Math.sin(stackAngle);              // r * sin(u)
+        
 
         // add (sectorCount+1) vertices per stack
         // first and last vertices have same position and normal, but different tex coords
         for (let j = 0; j <= sectorCount; ++j) {
+            z = radius * Math.sin(stackAngle);              // r * sin(u)
             sectorAngle = j * sectorStep;           // starting from 0 to 2pi
 
             // vertex position (x, y, z)
             x = xy * Math.cos(sectorAngle);             // r * cos(u) * cos(v)
             y = xy * Math.sin(sectorAngle);             // r * cos(u) * sin(v)
+
+            // Apply rotation around x-axis
+            var newX = x;
+            var newY = y * Math.cos(90) - z * Math.sin(90);
+            var newZ = y * Math.sin(90) + z * Math.cos(90);
+
+            x = newX;
+            y = newY;
+            z = newZ;
+
+            x += offsetX;
+            y += offsetY;
+            z += offsetZ;
+
             vertices.push(x);
             vertices.push(y);
             vertices.push(z);
@@ -909,7 +956,7 @@ function generateCheekVertices(radius, sectorCount, stackCount) {
     }
     return vertices;
 }
-function generateEyeBallIrisVertices(radius, sectorCount, stackCount) {
+function generateEyeBallIrisVertices(radius, sectorCount, stackCount, offsetX, offsetY, offsetZ) {
     let vertices = [];
     let normals = [];
     let texCoords = [];
@@ -924,16 +971,21 @@ function generateEyeBallIrisVertices(radius, sectorCount, stackCount) {
     for (let i = 0; i <= stackCount; ++i) {
         stackAngle = Math.PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
         xy = radius * Math.cos(stackAngle);             // r * cos(u)
-        z = radius * Math.sin(stackAngle);              // r * sin(u)
 
         // add (sectorCount+1) vertices per stack
         // first and last vertices have same position and normal, but different tex coords
         for (let j = 0; j <= sectorCount; ++j) {
+            z = radius * Math.sin(stackAngle);              // r * sin(u)
             sectorAngle = j * sectorStep;           // starting from 0 to 2pi
 
             // vertex position (x, y, z)
             x = xy * Math.cos(sectorAngle);             // r * cos(u) * cos(v)
             y = xy * Math.sin(sectorAngle);             // r * cos(u) * sin(v)
+
+            x += offsetX;
+            y += offsetY;
+            z += offsetZ;
+
             vertices.push(x);
             vertices.push(y);
             vertices.push(z);
@@ -975,16 +1027,20 @@ function generateBodyVertices(radius, sectorCount, stackCount) {
     for (let i = 0; i <= stackCount; ++i) {
         stackAngle = Math.PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
         xy = radius * Math.cos(stackAngle);             // r * cos(u)
-        z = radius * Math.sin(stackAngle);              // r * sin(u)
+       
 
         // add (sectorCount+1) vertices per stack
         // first and last vertices have same position and normal, but different tex coords
         for (let j = 0; j <= sectorCount; ++j) {
+            z = radius * Math.sin(stackAngle);              // r * sin(u)
             sectorAngle = j * sectorStep;           // starting from 0 to 2pi
 
             // vertex position (x, y, z)
             x = xy * Math.cos(sectorAngle);             // r * cos(u) * cos(v)
             y = xy * Math.sin(sectorAngle);             // r * cos(u) * sin(v)
+
+            y -= 2.6;
+            z += 5;
             vertices.push(x);
             vertices.push(y);
             vertices.push(z);
@@ -1026,16 +1082,29 @@ function generateUpperBeakVertices(radius, sectorCount, stackCount) {
     for (let i = 0; i <= stackCount; ++i) {
         stackAngle = Math.PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
         xy = radius * stackAngle;             // r * cos(u)
-        z = radius * stackAngle * stackAngle;          // r * sin(u)
 
         // add (sectorCount+1) vertices per stack
         // first and last vertices have same position and normal, but different tex coords
         for (let j = 0; j <= sectorCount; ++j) {
+            z = radius * stackAngle * stackAngle;          // r * sin(u)
             sectorAngle = j * sectorStep;           // starting from 0 to 2pi
 
             // vertex position (x, y, z)
             x = xy * Math.cos(sectorAngle);             // r * cos(u) * cos(v)
             y = xy * Math.sin(sectorAngle);             // r * cos(u) * sin(v)
+
+            // Apply rotation around x-axis
+            var newX = x;
+            var newY = y * Math.cos(90) - z * Math.sin(90);
+            var newZ = y * Math.sin(90) + z * Math.cos(90);
+
+            x = newX;
+            y = newY;
+            z = newZ;
+
+            y -= 1;
+            z += 7.3;
+
             vertices.push(x);
             vertices.push(y);
             vertices.push(z);
@@ -1078,17 +1147,28 @@ function generateEllipticParaboloidVerticesS(radius, sectorCount, stackCount) {
     for (let i = 0; i <= stackCount; ++i) {
         stackAngle = Math.PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
         xy = radius * stackAngle;             // r * cos(u)
-        z = radius * stackAngle * stackAngle;          // r * sin(u)
+        
 
         // add (sectorCount+1) vertices per stack
         // first and last vertices have same position and normal, but different tex coords
         for (let j = 0; j <= sectorCount; ++j) {
+            z = radius * stackAngle * stackAngle;          // r * sin(u)
             sectorAngle = j * sectorStep;           // starting from 0 to 2pi
 
             // vertex position (x, y, z)
             x = xy * Math.cos(sectorAngle);             // r * cos(u) * cos(v)
             y = xy * Math.sin(sectorAngle);             // r * cos(u) * sin(v)
-            
+
+            // Apply rotation around x-axis
+            var newX = x;
+            var newY = y * Math.cos(90) - z * Math.sin(90);
+            var newZ = y * Math.sin(90) + z * Math.cos(90);
+
+            x = newX;
+            y = newY;
+            z = newZ;
+
+            z += 6.2;
             vertices.push(x);
             vertices.push(y);
             vertices.push(z);
@@ -1389,20 +1469,7 @@ function main() {
     var MODEL_MATRIX2 = LIBS.get_I4();
     var MODEL_MATRIX3 = LIBS.get_I4();
     var MODEL_MATRIX4 = LIBS.get_I4();
-    var MODEL_MATRIX5 = LIBS.get_I4();
-    var MODEL_MATRIX6 = LIBS.get_I4();
-    var MODEL_MATRIX7 = LIBS.get_I4();
-    var MODEL_MATRIX8 = LIBS.get_I4();
-    var MODEL_MATRIX9 = LIBS.get_I4();
-    var MODEL_MATRIX10 = LIBS.get_I4();
-    var MODEL_MATRIX11 = LIBS.get_I4();
-    var MODEL_MATRIX12 = LIBS.get_I4();
-    var MODEL_MATRIX13 = LIBS.get_I4();
-    var MODEL_MATRIX14 = LIBS.get_I4();
-    var MODEL_MATRIX15 = LIBS.get_I4();
-    var MODEL_MATRIX16 = LIBS.get_I4();
-    var MODEL_MATRIX17 = LIBS.get_I4();
-
+  
 
 
     LIBS.translateZ(VIEW_MATRIX, -20);
@@ -1602,18 +1669,18 @@ function main() {
     ];
     var objectS = new MyObject(generateEllipticParaboloidVerticesS(1.2, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
     var object2S = new MyObject(generateBodyVertices(1.8, 36, 8), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
-    var object3S = new MyObject(generateEyeBallVertices(0.4, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
-    var object4S = new MyObject(generateEyeBallVertices(0.4, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
-    var object5S = new MyObject(generateEyeBallIrisVertices(0.15, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
-    var object6S = new MyObject(generateEyeBallIrisVertices(0.15, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
+    var object3S = new MyObject(generateEyeBallVertices(0.4, 36, 18, 0.5, -1, 6.5), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
+    var object4S = new MyObject(generateEyeBallVertices(0.4, 36, 18, -0.5, -1, 6.5), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
+    var object5S = new MyObject(generateEyeBallIrisVertices(0.15, 36, 18, -0.4, -1, 6.87), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
+    var object6S = new MyObject(generateEyeBallIrisVertices(0.15, 36, 18, 0.4, -1, 6.87), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
     var object7S = new MyObject(generateUpperBeakVertices(0.5, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
     var object8S = new MyObject(generateBottomBeakVertices(0.86, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
-    var object9S = new MyObject(generateCheekVertices(0.45, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
-    var object10S = new MyObject(generateCheekVertices(0.45, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
-    var object11S = new MyObject(generateEyelidVertices(0.4, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
-    var object12S = new MyObject(generateEyelidVertices(0.4, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
-    var object13S = new MyObject(generateParallelogramVertices(0.6, 0.15, 0.1), cube_faces, shader_vertex_source, shader_fragment_source);
-    var object14S = new MyObject(generateParallelogramVertices(0.6, 0.15, 0.1), cube_faces, shader_vertex_source, shader_fragment_source);
+    var object9S = new MyObject(generateCheekVertices(0.45, 36, 18, 0.9, -1.65, 6.4), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
+    var object10S = new MyObject(generateCheekVertices(0.45, 36, 18, -0.9, -1.65, 6.4), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
+    var object11S = new MyObject(generateEyelidVertices(0.4, 36, 18, -0.5, -0.89, 6.51), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
+    var object12S = new MyObject(generateEyelidVertices(0.4, 36, 18, 0.5, -0.89, 6.51), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
+    var object13S = new MyObject(generateParallelogramVertices(0.6, 0.15, 0.1, 0.7, -0.5, 6.57), cube_faces, shader_vertex_source, shader_fragment_source);
+    var object14S = new MyObject(generateParallelogramVertices(0.6, 0.15, 0.1, -0.7, -0.5, 6.57), cube_faces, shader_vertex_source, shader_fragment_source);
     objectS.child.push(object2S);
     objectS.child.push(object3S);
     objectS.child.push(object4S);
@@ -1657,43 +1724,43 @@ function main() {
         
 
         // Richard 
-        MODEL_MATRIX17 = LIBS.get_I4();
-        LIBS.rotateY(MODEL_MATRIX17, THETA);
-        LIBS.rotateX(MODEL_MATRIX17, ALPHA);
-        head.MODEL_MATRIX = MODEL_MATRIX17;
-        rightEar.MODEL_MATRIX = MODEL_MATRIX17;
-        leftEar.MODEL_MATRIX = MODEL_MATRIX17;
-        rightEye.MODEL_MATRIX = MODEL_MATRIX17;
-        leftEye.MODEL_MATRIX = MODEL_MATRIX17;
-        nose.MODEL_MATRIX = MODEL_MATRIX17;
-        eyebrow.MODEL_MATRIX = MODEL_MATRIX17;
+        MODEL_MATRIX4 = LIBS.get_I4();
+        LIBS.rotateY(MODEL_MATRIX4, THETA);
+        LIBS.rotateX(MODEL_MATRIX4, ALPHA);
+        head.MODEL_MATRIX = MODEL_MATRIX4;
+        rightEar.MODEL_MATRIX = MODEL_MATRIX4;
+        leftEar.MODEL_MATRIX = MODEL_MATRIX4;
+        rightEye.MODEL_MATRIX = MODEL_MATRIX4;
+        leftEye.MODEL_MATRIX = MODEL_MATRIX4;
+        nose.MODEL_MATRIX = MODEL_MATRIX4;
+        eyebrow.MODEL_MATRIX = MODEL_MATRIX4;
         head.render(VIEW_MATRIX, PROJECTION_MATRIX);
 
         // Kiko
-        MODEL_MATRIX15 = LIBS.get_I4();
-        LIBS.rotateY(MODEL_MATRIX15, THETA);
-        LIBS.rotateX(MODEL_MATRIX15, ALPHA);
-        LIBS.translateX(MODEL_MATRIX15, 4);
+        MODEL_MATRIX2 = LIBS.get_I4();
+        LIBS.rotateY(MODEL_MATRIX2, THETA);
+        LIBS.rotateX(MODEL_MATRIX2, ALPHA);
+        LIBS.translateX(MODEL_MATRIX2, 4);
 
-        MODEL_MATRIX16 = LIBS.get_I4();
-        LIBS.rotateZ(MODEL_MATRIX16, 3.14);
-        LIBS.rotateY(MODEL_MATRIX16, THETA);
-        LIBS.rotateX(MODEL_MATRIX16, ALPHA);
-        LIBS.translateX(MODEL_MATRIX16, 4);
+        MODEL_MATRIX3 = LIBS.get_I4();
+        LIBS.rotateZ(MODEL_MATRIX3, 3.14);
+        LIBS.rotateY(MODEL_MATRIX3, THETA);
+        LIBS.rotateX(MODEL_MATRIX3, ALPHA);
+        LIBS.translateX(MODEL_MATRIX3, 4);
    
-        object.MODEL_MATRIX = MODEL_MATRIX15;
-        object2.MODEL_MATRIX = MODEL_MATRIX15;
-        object3.MODEL_MATRIX = MODEL_MATRIX15;
-        object4.MODEL_MATRIX = MODEL_MATRIX15;
-        object5.MODEL_MATRIX = MODEL_MATRIX15;
-        object6.MODEL_MATRIX = MODEL_MATRIX15;
-        object7.MODEL_MATRIX = MODEL_MATRIX15;
-        object8.MODEL_MATRIX = MODEL_MATRIX15;
-        object9.MODEL_MATRIX = MODEL_MATRIX16;
-        object10.MODEL_MATRIX = MODEL_MATRIX15;
-        object11.MODEL_MATRIX = MODEL_MATRIX15;
-        object12.MODEL_MATRIX = MODEL_MATRIX15;
-        object13.MODEL_MATRIX = MODEL_MATRIX15;
+        object.MODEL_MATRIX = MODEL_MATRIX2;
+        object2.MODEL_MATRIX = MODEL_MATRIX2;
+        object3.MODEL_MATRIX = MODEL_MATRIX2;
+        object4.MODEL_MATRIX = MODEL_MATRIX2;
+        object5.MODEL_MATRIX = MODEL_MATRIX2;
+        object6.MODEL_MATRIX = MODEL_MATRIX2;
+        object7.MODEL_MATRIX = MODEL_MATRIX2;
+        object8.MODEL_MATRIX = MODEL_MATRIX2;
+        object9.MODEL_MATRIX = MODEL_MATRIX3;
+        object10.MODEL_MATRIX = MODEL_MATRIX2;
+        object11.MODEL_MATRIX = MODEL_MATRIX2;
+        object12.MODEL_MATRIX = MODEL_MATRIX2;
+        object13.MODEL_MATRIX = MODEL_MATRIX2;
 
         object.render(VIEW_MATRIX, PROJECTION_MATRIX);
         
@@ -1701,153 +1768,29 @@ function main() {
         
         //head
         MODEL_MATRIX = LIBS.get_I4();
-        //LIBS.translateX(MODEL_MATRIX, -4);
         LIBS.rotateY(MODEL_MATRIX, THETA);
         LIBS.rotateX(MODEL_MATRIX, ALPHA);
-        LIBS.rotateX(MODEL_MATRIX, 90);
-        LIBS.translateZ(MODEL_MATRIX, 6.2);
-       
+        LIBS.translateX(MODEL_MATRIX, -4);
+        LIBS.translateZ(MODEL_MATRIX, -10);
 
-        //body
-        MODEL_MATRIX2 = LIBS.get_I4();
-        //LIBS.translateX(MODEL_MATRIX2, -4);
-        //LIBS.rotateX(MODEL_MATRIX2, 90);
-        LIBS.rotateY(MODEL_MATRIX2, THETA);
-        LIBS.rotateX(MODEL_MATRIX2, ALPHA);
-        LIBS.translateY(MODEL_MATRIX2, -2.6);
-        LIBS.translateZ(MODEL_MATRIX2, 5);
-       
-
-        //eyeball right
-        MODEL_MATRIX3 = LIBS.get_I4();
-        
-        LIBS.translateX(MODEL_MATRIX3, 0.5);
-        LIBS.translateY(MODEL_MATRIX3, -1);
-        LIBS.translateZ(MODEL_MATRIX3, 6.5);
-        LIBS.rotateY(MODEL_MATRIX3, THETA);
-        LIBS.rotateX(MODEL_MATRIX3, ALPHA);
-
-        //eyeball left
-        MODEL_MATRIX4 = LIBS.get_I4();
-        LIBS.rotateY(MODEL_MATRIX4, THETA);
-        LIBS.rotateX(MODEL_MATRIX4, ALPHA);
-        LIBS.translateX(MODEL_MATRIX4, -0.5);
-        LIBS.translateY(MODEL_MATRIX4, -1);
-        LIBS.translateZ(MODEL_MATRIX4, 6.5);
-        
-
-        //iris left
-        MODEL_MATRIX5 = LIBS.get_I4();
-        LIBS.rotateY(MODEL_MATRIX5, THETA);
-        LIBS.rotateX(MODEL_MATRIX5, ALPHA);
-        LIBS.translateX(MODEL_MATRIX5, -0.4);
-        LIBS.translateY(MODEL_MATRIX5, -1);
-        LIBS.translateZ(MODEL_MATRIX5, 6.87);
-       
-
-        //iris right
-        MODEL_MATRIX6 = LIBS.get_I4();
-        LIBS.rotateY(MODEL_MATRIX6, THETA);
-        LIBS.rotateX(MODEL_MATRIX6, ALPHA);
-        LIBS.translateX(MODEL_MATRIX6, 0.4);
-        LIBS.translateY(MODEL_MATRIX6, -1);
-        LIBS.translateZ(MODEL_MATRIX6, 6.87);
-    
-        //upper beak
-        MODEL_MATRIX7 = LIBS.get_I4();
-        LIBS.rotateY(MODEL_MATRIX7, THETA);
-        LIBS.rotateX(MODEL_MATRIX7, ALPHA);
-        LIBS.rotateX(MODEL_MATRIX7, 90);
-        LIBS.translateY(MODEL_MATRIX7, -1);
-        LIBS.translateZ(MODEL_MATRIX7, 7.3);
-        
-
-        //bottom beak
-        MODEL_MATRIX8 = LIBS.get_I4();
-        //LIBS.translateX(MODEL_MATRIX8,2);
-        LIBS.rotateX(MODEL_MATRIX8, 90);
-        LIBS.rotateY(MODEL_MATRIX8, THETA);
-        LIBS.rotateX(MODEL_MATRIX8, ALPHA);
-        LIBS.translateY(MODEL_MATRIX8, -1.85);
-        LIBS.translateZ(MODEL_MATRIX8, 6.9);
-        
-
-        //cheeks
-        MODEL_MATRIX9 = LIBS.get_I4();
-        //LIBS.translateX(MODEL_MATRIX8,2);
-        LIBS.rotateX(MODEL_MATRIX9, 90);
-        LIBS.rotateY(MODEL_MATRIX9, THETA);
-        LIBS.rotateX(MODEL_MATRIX9, ALPHA);
-        LIBS.translateX(MODEL_MATRIX9, 0.9);
-        LIBS.translateY(MODEL_MATRIX9, -1.65);
-        LIBS.translateZ(MODEL_MATRIX9, 6.4);
-        
-        //cheek
-        MODEL_MATRIX10 = LIBS.get_I4();
-        //LIBS.translateX(MODEL_MATRIX8,2);
-        LIBS.rotateX(MODEL_MATRIX10, 90);
-        LIBS.rotateY(MODEL_MATRIX10, THETA);
-        LIBS.rotateX(MODEL_MATRIX10, ALPHA);
-        LIBS.translateX(MODEL_MATRIX10, -0.9);
-        LIBS.translateY(MODEL_MATRIX10, -1.65);
-        LIBS.translateZ(MODEL_MATRIX10, 6.4);
-      
-        //eyebrow
-        MODEL_MATRIX13 = LIBS.get_I4();
-        //LIBS.translateX(MODEL_MATRIX8,2);
-        LIBS.rotateY(MODEL_MATRIX13, THETA);
-        LIBS.rotateX(MODEL_MATRIX13, ALPHA);
-        LIBS.translateX(MODEL_MATRIX13, 0.7);
-        LIBS.translateY(MODEL_MATRIX13, -0.5);
-        LIBS.translateZ(MODEL_MATRIX13, 6.57);
-        
-        //eyebrow
-        MODEL_MATRIX14 = LIBS.get_I4();
-        LIBS.rotateY(MODEL_MATRIX14, 3);
-        LIBS.rotateY(MODEL_MATRIX14, THETA);
-        LIBS.rotateX(MODEL_MATRIX14, ALPHA);
-        LIBS.translateX(MODEL_MATRIX14, -0.7);
-        LIBS.translateY(MODEL_MATRIX14, -0.5);
-        LIBS.translateZ(MODEL_MATRIX14, 6.57);
-        
-        //eyelid
-        MODEL_MATRIX11 = LIBS.get_I4();
-        LIBS.rotateX(MODEL_MATRIX11, -90);
-        LIBS.rotateY(MODEL_MATRIX11, THETA);
-        LIBS.rotateX(MODEL_MATRIX11, ALPHA);
-        LIBS.translateX(MODEL_MATRIX11, -0.5);
-        LIBS.translateY(MODEL_MATRIX11, -0.89);
-        LIBS.translateZ(MODEL_MATRIX11, 6.51);
-      
-
-        //eyelid
-        MODEL_MATRIX12 = LIBS.get_I4();
-        
-        LIBS.rotateX(MODEL_MATRIX12, -90);
-        LIBS.rotateY(MODEL_MATRIX12, THETA);
-        LIBS.rotateX(MODEL_MATRIX12, ALPHA);
-        LIBS.translateX(MODEL_MATRIX12, 0.5);
-        LIBS.translateY(MODEL_MATRIX12, -0.89);
-        LIBS.translateZ(MODEL_MATRIX12, 6.51);
-      
-
+             
         objectS.MODEL_MATRIX = MODEL_MATRIX;
-        object2S.MODEL_MATRIX = MODEL_MATRIX2;
-        object3S.MODEL_MATRIX = MODEL_MATRIX3;
-        object4S.MODEL_MATRIX = MODEL_MATRIX4;
-        object5S.MODEL_MATRIX = MODEL_MATRIX5;
-        object6S.MODEL_MATRIX = MODEL_MATRIX6;
-        object7S.MODEL_MATRIX = MODEL_MATRIX7;
-        object8S.MODEL_MATRIX = MODEL_MATRIX8;
-        object9S.MODEL_MATRIX = MODEL_MATRIX9;
-        object10S.MODEL_MATRIX = MODEL_MATRIX10;
-        object11S.MODEL_MATRIX = MODEL_MATRIX11;
-        object12S.MODEL_MATRIX = MODEL_MATRIX12;
-        object13S.MODEL_MATRIX = MODEL_MATRIX13;
-        object14S.MODEL_MATRIX = MODEL_MATRIX14;
+        object2S.MODEL_MATRIX = MODEL_MATRIX;
+        object3S.MODEL_MATRIX = MODEL_MATRIX;
+        object4S.MODEL_MATRIX = MODEL_MATRIX;
+        object5S.MODEL_MATRIX = MODEL_MATRIX;
+        object6S.MODEL_MATRIX = MODEL_MATRIX;
+        object7S.MODEL_MATRIX = MODEL_MATRIX;
+        object8S.MODEL_MATRIX = MODEL_MATRIX;
+        object9S.MODEL_MATRIX = MODEL_MATRIX;
+        object10S.MODEL_MATRIX = MODEL_MATRIX;
+        object11S.MODEL_MATRIX = MODEL_MATRIX;
+        object12S.MODEL_MATRIX = MODEL_MATRIX;
+        object13S.MODEL_MATRIX = MODEL_MATRIX;
+        object14S.MODEL_MATRIX = MODEL_MATRIX;
         objectS.render(VIEW_MATRIX, PROJECTION_MATRIX);
 
-        // // Combination Transformation Translation & Rotation
+        // // Combination Transformation (Translation & Rotation)
         // if (time >= 1000 && time < 3000){
         //     LIBS.rotateX(MODEL_MATRIX, - LIBS.degToRad(15) * dt /10);
         //     LIBS.translateY(MODEL_MATRIX, dt / 1000);
