@@ -1063,7 +1063,7 @@ function generateUpperBeakVertices(radius, sectorCount, stackCount) {
     }
     return vertices;
 }
-function generateEllipticParaboloidVertices(radius, sectorCount, stackCount) {
+function generateEllipticParaboloidVerticesS(radius, sectorCount, stackCount) {
     let vertices = [];
     let normals = [];
     let texCoords = [];
@@ -1088,6 +1088,7 @@ function generateEllipticParaboloidVertices(radius, sectorCount, stackCount) {
             // vertex position (x, y, z)
             x = xy * Math.cos(sectorAngle);             // r * cos(u) * cos(v)
             y = xy * Math.sin(sectorAngle);             // r * cos(u) * sin(v)
+            
             vertices.push(x);
             vertices.push(y);
             vertices.push(z);
@@ -1388,6 +1389,19 @@ function main() {
     var MODEL_MATRIX2 = LIBS.get_I4();
     var MODEL_MATRIX3 = LIBS.get_I4();
     var MODEL_MATRIX4 = LIBS.get_I4();
+    var MODEL_MATRIX5 = LIBS.get_I4();
+    var MODEL_MATRIX6 = LIBS.get_I4();
+    var MODEL_MATRIX7 = LIBS.get_I4();
+    var MODEL_MATRIX8 = LIBS.get_I4();
+    var MODEL_MATRIX9 = LIBS.get_I4();
+    var MODEL_MATRIX10 = LIBS.get_I4();
+    var MODEL_MATRIX11 = LIBS.get_I4();
+    var MODEL_MATRIX12 = LIBS.get_I4();
+    var MODEL_MATRIX13 = LIBS.get_I4();
+    var MODEL_MATRIX14 = LIBS.get_I4();
+    var MODEL_MATRIX15 = LIBS.get_I4();
+    var MODEL_MATRIX16 = LIBS.get_I4();
+    var MODEL_MATRIX17 = LIBS.get_I4();
 
 
 
@@ -1562,7 +1576,31 @@ function main() {
     object.setup();
 
     //Steve
-    var objectS = new MyObject(generateEllipticParaboloidVertices(1.2, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
+    var cube_faces = [
+        0, 1, 2,
+        0, 2, 3,
+
+
+        4, 5, 6,
+        4, 6, 7,
+
+
+        8, 9, 10,
+        8, 10, 11,
+
+
+        12, 13, 14,
+        12, 14, 15,
+
+
+        16, 17, 18,
+        16, 18, 19,
+
+
+        20, 21, 22,
+        20, 22, 23
+    ];
+    var objectS = new MyObject(generateEllipticParaboloidVerticesS(1.2, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
     var object2S = new MyObject(generateBodyVertices(1.8, 36, 8), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
     var object3S = new MyObject(generateEyeBallVertices(0.4, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
     var object4S = new MyObject(generateEyeBallVertices(0.4, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
@@ -1589,7 +1627,7 @@ function main() {
     objectS.child.push(object12S);
     objectS.child.push(object13S);
     objectS.child.push(object14S);
-    object.setup();
+    objectS.setup();
 
 
     /*========================= DRAWING ========================= */
@@ -1619,136 +1657,195 @@ function main() {
         
 
         // Richard 
-        MODEL_MATRIX = LIBS.get_I4();
-        LIBS.rotateY(MODEL_MATRIX, THETA);
-        LIBS.rotateX(MODEL_MATRIX, ALPHA);
-        head.MODEL_MATRIX = MODEL_MATRIX;
-        rightEar.MODEL_MATRIX = MODEL_MATRIX;
-        leftEar.MODEL_MATRIX = MODEL_MATRIX;
-        rightEye.MODEL_MATRIX = MODEL_MATRIX;
-        leftEye.MODEL_MATRIX = MODEL_MATRIX;
-        nose.MODEL_MATRIX = MODEL_MATRIX;
-        eyebrow.MODEL_MATRIX = MODEL_MATRIX;
+        MODEL_MATRIX17 = LIBS.get_I4();
+        LIBS.rotateY(MODEL_MATRIX17, THETA);
+        LIBS.rotateX(MODEL_MATRIX17, ALPHA);
+        head.MODEL_MATRIX = MODEL_MATRIX17;
+        rightEar.MODEL_MATRIX = MODEL_MATRIX17;
+        leftEar.MODEL_MATRIX = MODEL_MATRIX17;
+        rightEye.MODEL_MATRIX = MODEL_MATRIX17;
+        leftEye.MODEL_MATRIX = MODEL_MATRIX17;
+        nose.MODEL_MATRIX = MODEL_MATRIX17;
+        eyebrow.MODEL_MATRIX = MODEL_MATRIX17;
         head.render(VIEW_MATRIX, PROJECTION_MATRIX);
 
         // Kiko
-        MODEL_MATRIX2 = LIBS.get_I4();
-        MODEL_MATRIX3 = LIBS.get_I4();
-        LIBS.rotateY(MODEL_MATRIX2, THETA);
-        LIBS.rotateX(MODEL_MATRIX2, ALPHA);
-        LIBS.translateX(MODEL_MATRIX2, 4);
+        MODEL_MATRIX15 = LIBS.get_I4();
+        LIBS.rotateY(MODEL_MATRIX15, THETA);
+        LIBS.rotateX(MODEL_MATRIX15, ALPHA);
+        LIBS.translateX(MODEL_MATRIX15, 4);
 
-        LIBS.rotateZ(MODEL_MATRIX3, 3.14);
-        LIBS.rotateY(MODEL_MATRIX3, THETA);
-        LIBS.rotateX(MODEL_MATRIX3, ALPHA);
-        LIBS.translateX(MODEL_MATRIX3, 4);
+        MODEL_MATRIX16 = LIBS.get_I4();
+        LIBS.rotateZ(MODEL_MATRIX16, 3.14);
+        LIBS.rotateY(MODEL_MATRIX16, THETA);
+        LIBS.rotateX(MODEL_MATRIX16, ALPHA);
+        LIBS.translateX(MODEL_MATRIX16, 4);
    
-        object.MODEL_MATRIX = MODEL_MATRIX2;
-        object2.MODEL_MATRIX = MODEL_MATRIX2;
-        object3.MODEL_MATRIX = MODEL_MATRIX2;
-        object4.MODEL_MATRIX = MODEL_MATRIX2;
-        object5.MODEL_MATRIX = MODEL_MATRIX2;
-        object6.MODEL_MATRIX = MODEL_MATRIX2;
-        object7.MODEL_MATRIX = MODEL_MATRIX2;
-        object8.MODEL_MATRIX = MODEL_MATRIX2;
-        object9.MODEL_MATRIX = MODEL_MATRIX3;
-        object10.MODEL_MATRIX = MODEL_MATRIX2;
-        object11.MODEL_MATRIX = MODEL_MATRIX2;
-        object12.MODEL_MATRIX = MODEL_MATRIX2;
-        object13.MODEL_MATRIX = MODEL_MATRIX2;
+        object.MODEL_MATRIX = MODEL_MATRIX15;
+        object2.MODEL_MATRIX = MODEL_MATRIX15;
+        object3.MODEL_MATRIX = MODEL_MATRIX15;
+        object4.MODEL_MATRIX = MODEL_MATRIX15;
+        object5.MODEL_MATRIX = MODEL_MATRIX15;
+        object6.MODEL_MATRIX = MODEL_MATRIX15;
+        object7.MODEL_MATRIX = MODEL_MATRIX15;
+        object8.MODEL_MATRIX = MODEL_MATRIX15;
+        object9.MODEL_MATRIX = MODEL_MATRIX16;
+        object10.MODEL_MATRIX = MODEL_MATRIX15;
+        object11.MODEL_MATRIX = MODEL_MATRIX15;
+        object12.MODEL_MATRIX = MODEL_MATRIX15;
+        object13.MODEL_MATRIX = MODEL_MATRIX15;
 
         object.render(VIEW_MATRIX, PROJECTION_MATRIX);
         
-        //Steve
+        // Steve
         
         //head
         MODEL_MATRIX = LIBS.get_I4();
         //LIBS.translateX(MODEL_MATRIX, -4);
-        //LIBS.rotateY(MODEL_MATRIX, THETA);
+        LIBS.rotateY(MODEL_MATRIX, THETA);
+        LIBS.rotateX(MODEL_MATRIX, ALPHA);
         LIBS.rotateX(MODEL_MATRIX, 90);
-        LIBS.setPosition(MODEL_MATRIX, 0, 0, 6.2);
+        LIBS.translateZ(MODEL_MATRIX, 6.2);
+       
 
         //body
         MODEL_MATRIX2 = LIBS.get_I4();
         //LIBS.translateX(MODEL_MATRIX2, -4);
-        //LIBS.rotateY(MODEL_MATRIX2, THETA);
         //LIBS.rotateX(MODEL_MATRIX2, 90);
-        LIBS.setPosition(MODEL_MATRIX2, 0, -2.6, 5);
+        LIBS.rotateY(MODEL_MATRIX2, THETA);
+        LIBS.rotateX(MODEL_MATRIX2, ALPHA);
+        LIBS.translateY(MODEL_MATRIX2, -2.6);
+        LIBS.translateZ(MODEL_MATRIX2, 5);
+       
 
         //eyeball right
         MODEL_MATRIX3 = LIBS.get_I4();
-        LIBS.translateX(MODEL_MATRIX3, 2);
-        //LIBS.rotateY(MODEL_MATRIX3, -THETA);
-        //LIBS.rotateX(MODEL_MATRIX3, -ALPHA);
-        LIBS.setPosition(MODEL_MATRIX3, 0.5, -1, 6.5);
+        
+        LIBS.translateX(MODEL_MATRIX3, 0.5);
+        LIBS.translateY(MODEL_MATRIX3, -1);
+        LIBS.translateZ(MODEL_MATRIX3, 6.5);
+        LIBS.rotateY(MODEL_MATRIX3, THETA);
+        LIBS.rotateX(MODEL_MATRIX3, ALPHA);
 
         //eyeball left
         MODEL_MATRIX4 = LIBS.get_I4();
-        LIBS.translateX(MODEL_MATRIX4, 2);
-        //LIBS.rotateY(MODEL_MATRIX3, -THETA);
-        //LIBS.rotateX(MODEL_MATRIX3, -ALPHA);
-        LIBS.setPosition(MODEL_MATRIX4, -0.5, -1, 6.5);
+        LIBS.rotateY(MODEL_MATRIX4, THETA);
+        LIBS.rotateX(MODEL_MATRIX4, ALPHA);
+        LIBS.translateX(MODEL_MATRIX4, -0.5);
+        LIBS.translateY(MODEL_MATRIX4, -1);
+        LIBS.translateZ(MODEL_MATRIX4, 6.5);
+        
 
         //iris left
         MODEL_MATRIX5 = LIBS.get_I4();
-        LIBS.translateX(MODEL_MATRIX5, 2);
-        //LIBS.rotateY(MODEL_MATRIX3, -THETA);
-        //LIBS.rotateX(MODEL_MATRIX3, -ALPHA);
-        LIBS.setPosition(MODEL_MATRIX5, -0.4, -1, 6.87);
+        LIBS.rotateY(MODEL_MATRIX5, THETA);
+        LIBS.rotateX(MODEL_MATRIX5, ALPHA);
+        LIBS.translateX(MODEL_MATRIX5, -0.4);
+        LIBS.translateY(MODEL_MATRIX5, -1);
+        LIBS.translateZ(MODEL_MATRIX5, 6.87);
+       
 
         //iris right
         MODEL_MATRIX6 = LIBS.get_I4();
-        LIBS.translateX(MODEL_MATRIX6, 2);
-        //LIBS.rotateY(MODEL_MATRIX3, -THETA);
-        //LIBS.rotateX(MODEL_MATRIX3, -ALPHA);
-        LIBS.setPosition(MODEL_MATRIX6, 0.4, -1, 6.87);
-
+        LIBS.rotateY(MODEL_MATRIX6, THETA);
+        LIBS.rotateX(MODEL_MATRIX6, ALPHA);
+        LIBS.translateX(MODEL_MATRIX6, 0.4);
+        LIBS.translateY(MODEL_MATRIX6, -1);
+        LIBS.translateZ(MODEL_MATRIX6, 6.87);
+    
         //upper beak
         MODEL_MATRIX7 = LIBS.get_I4();
-        LIBS.translateX(MODEL_MATRIX7, 2);
-        //LIBS.rotateY(MODEL_MATRIX3, -THETA);
+        LIBS.rotateY(MODEL_MATRIX7, THETA);
+        LIBS.rotateX(MODEL_MATRIX7, ALPHA);
         LIBS.rotateX(MODEL_MATRIX7, 90);
-        LIBS.setPosition(MODEL_MATRIX7, 0, -1, 7.3);
+        LIBS.translateY(MODEL_MATRIX7, -1);
+        LIBS.translateZ(MODEL_MATRIX7, 7.3);
+        
 
         //bottom beak
         MODEL_MATRIX8 = LIBS.get_I4();
         //LIBS.translateX(MODEL_MATRIX8,2);
-        //LIBS.rotateY(MODEL_MATRIX3, -THETA);
         LIBS.rotateX(MODEL_MATRIX8, 90);
-        LIBS.setPosition(MODEL_MATRIX8, 0, -1.85, 6.9);
+        LIBS.rotateY(MODEL_MATRIX8, THETA);
+        LIBS.rotateX(MODEL_MATRIX8, ALPHA);
+        LIBS.translateY(MODEL_MATRIX8, -1.85);
+        LIBS.translateZ(MODEL_MATRIX8, 6.9);
+        
 
         //cheeks
         MODEL_MATRIX9 = LIBS.get_I4();
         //LIBS.translateX(MODEL_MATRIX8,2);
-        //LIBS.rotateY(MODEL_MATRIX3, -THETA);
         LIBS.rotateX(MODEL_MATRIX9, 90);
-        LIBS.setPosition(MODEL_MATRIX9, 0.9, -1.65, 6.4);
+        LIBS.rotateY(MODEL_MATRIX9, THETA);
+        LIBS.rotateX(MODEL_MATRIX9, ALPHA);
+        LIBS.translateX(MODEL_MATRIX9, 0.9);
+        LIBS.translateY(MODEL_MATRIX9, -1.65);
+        LIBS.translateZ(MODEL_MATRIX9, 6.4);
+        
         //cheek
         MODEL_MATRIX10 = LIBS.get_I4();
         //LIBS.translateX(MODEL_MATRIX8,2);
-        //LIBS.rotateY(MODEL_MATRIX3, -THETA);
         LIBS.rotateX(MODEL_MATRIX10, 90);
-        LIBS.setPosition(MODEL_MATRIX10, -0.9, -1.65, 6.4);
-
+        LIBS.rotateY(MODEL_MATRIX10, THETA);
+        LIBS.rotateX(MODEL_MATRIX10, ALPHA);
+        LIBS.translateX(MODEL_MATRIX10, -0.9);
+        LIBS.translateY(MODEL_MATRIX10, -1.65);
+        LIBS.translateZ(MODEL_MATRIX10, 6.4);
+      
         //eyebrow
         MODEL_MATRIX13 = LIBS.get_I4();
         //LIBS.translateX(MODEL_MATRIX8,2);
-        //LIBS.rotateY(MODEL_MATRIX3, -THETA);
-        LIBS.setPosition(MODEL_MATRIX13, 0.7, -0.5, 6.57);
+        LIBS.rotateY(MODEL_MATRIX13, THETA);
+        LIBS.rotateX(MODEL_MATRIX13, ALPHA);
+        LIBS.translateX(MODEL_MATRIX13, 0.7);
+        LIBS.translateY(MODEL_MATRIX13, -0.5);
+        LIBS.translateZ(MODEL_MATRIX13, 6.57);
+        
         //eyebrow
         MODEL_MATRIX14 = LIBS.get_I4();
         LIBS.rotateY(MODEL_MATRIX14, 3);
-        LIBS.setPosition(MODEL_MATRIX14, -0.7, -0.5, 6.57);
-
+        LIBS.rotateY(MODEL_MATRIX14, THETA);
+        LIBS.rotateX(MODEL_MATRIX14, ALPHA);
+        LIBS.translateX(MODEL_MATRIX14, -0.7);
+        LIBS.translateY(MODEL_MATRIX14, -0.5);
+        LIBS.translateZ(MODEL_MATRIX14, 6.57);
+        
         //eyelid
         MODEL_MATRIX11 = LIBS.get_I4();
         LIBS.rotateX(MODEL_MATRIX11, -90);
-        LIBS.setPosition(MODEL_MATRIX11, -0.5, -0.89, 6.51);
+        LIBS.rotateY(MODEL_MATRIX11, THETA);
+        LIBS.rotateX(MODEL_MATRIX11, ALPHA);
+        LIBS.translateX(MODEL_MATRIX11, -0.5);
+        LIBS.translateY(MODEL_MATRIX11, -0.89);
+        LIBS.translateZ(MODEL_MATRIX11, 6.51);
+      
 
         //eyelid
         MODEL_MATRIX12 = LIBS.get_I4();
+        
         LIBS.rotateX(MODEL_MATRIX12, -90);
-        LIBS.setPosition(MODEL_MATRIX12, 0.5, -0.89, 6.51);
+        LIBS.rotateY(MODEL_MATRIX12, THETA);
+        LIBS.rotateX(MODEL_MATRIX12, ALPHA);
+        LIBS.translateX(MODEL_MATRIX12, 0.5);
+        LIBS.translateY(MODEL_MATRIX12, -0.89);
+        LIBS.translateZ(MODEL_MATRIX12, 6.51);
+      
+
+        objectS.MODEL_MATRIX = MODEL_MATRIX;
+        object2S.MODEL_MATRIX = MODEL_MATRIX2;
+        object3S.MODEL_MATRIX = MODEL_MATRIX3;
+        object4S.MODEL_MATRIX = MODEL_MATRIX4;
+        object5S.MODEL_MATRIX = MODEL_MATRIX5;
+        object6S.MODEL_MATRIX = MODEL_MATRIX6;
+        object7S.MODEL_MATRIX = MODEL_MATRIX7;
+        object8S.MODEL_MATRIX = MODEL_MATRIX8;
+        object9S.MODEL_MATRIX = MODEL_MATRIX9;
+        object10S.MODEL_MATRIX = MODEL_MATRIX10;
+        object11S.MODEL_MATRIX = MODEL_MATRIX11;
+        object12S.MODEL_MATRIX = MODEL_MATRIX12;
+        object13S.MODEL_MATRIX = MODEL_MATRIX13;
+        object14S.MODEL_MATRIX = MODEL_MATRIX14;
+        objectS.render(VIEW_MATRIX, PROJECTION_MATRIX);
 
         // // Combination Transformation Translation & Rotation
         // if (time >= 1000 && time < 3000){

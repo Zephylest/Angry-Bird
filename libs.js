@@ -167,7 +167,7 @@ var LIBS = {
         m[13] += t;
 
     },
-    set_position: function(m, a, b, c){
+    setPosition: function(m, a, b, c){
         m[12]=a, m[13]=b, m[14]=c;
     }
 };
