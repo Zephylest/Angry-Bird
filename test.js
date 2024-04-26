@@ -1,5 +1,127 @@
 var GL;
 
+class MyObject {
+    canvas = null;
+    vertex = [];
+    faces = [];
+
+
+    SHADER_PROGRAM = null;
+    _color = null;
+    _position = null;
+
+
+    _MMatrix = LIBS.get_I4();
+    _PMatrix = LIBS.get_I4();
+    _VMatrix = LIBS.get_I4();
+    _greyScality = 0;
+
+
+    TRIANGLE_VERTEX = null;
+    TRIANGLE_FACES = null;
+
+
+    MODEL_MATRIX = LIBS.get_I4();
+
+
+    child = []
+
+
+    constructor(vertex, faces, source_shader_vertex, source_shader_fragment) {
+        this.vertex = vertex;
+        this.faces = faces;
+
+
+        var compile_shader = function (source, type, typeString) {
+            var shader = GL.createShader(type);
+            GL.shaderSource(shader, source);
+            GL.compileShader(shader);
+            if (!GL.getShaderParameter(shader, GL.COMPILE_STATUS)) {
+                alert("ERROR IN " + typeString + " SHADER: " + GL.getShaderInfoLog(shader));
+                return false;
+            }
+            return shader;
+        };
+
+        var shader_vertex = compile_shader(source_shader_vertex, GL.VERTEX_SHADER, "VERTEX");
+
+        var shader_fragment = compile_shader(source_shader_fragment, GL.FRAGMENT_SHADER, "FRAGMENT");
+
+        this.SHADER_PROGRAM = GL.createProgram();
+        GL.attachShader(this.SHADER_PROGRAM, shader_vertex);
+        GL.attachShader(this.SHADER_PROGRAM, shader_fragment);
+
+        GL.linkProgram(this.SHADER_PROGRAM);
+
+
+        //vao
+        this._color = GL.getAttribLocation(this.SHADER_PROGRAM, "color");
+        this._position = GL.getAttribLocation(this.SHADER_PROGRAM, "position");
+
+
+        //uniform
+        this._PMatrix = GL.getUniformLocation(this.SHADER_PROGRAM, "PMatrix"); //projection
+        this._VMatrix = GL.getUniformLocation(this.SHADER_PROGRAM, "VMatrix"); //View
+        this._MMatrix = GL.getUniformLocation(this.SHADER_PROGRAM, "MMatrix"); //Model
+        this._greyScality = GL.getUniformLocation(this.SHADER_PROGRAM, "greyScality");//GreyScality
+
+
+
+        GL.enableVertexAttribArray(this._color);
+        GL.enableVertexAttribArray(this._position);
+        GL.useProgram(this.SHADER_PROGRAM);
+
+
+
+
+        this.TRIANGLE_VERTEX = GL.createBuffer();
+        this.TRIANGLE_FACES = GL.createBuffer();
+
+    }
+
+
+    setup() {
+        GL.bindBuffer(GL.ARRAY_BUFFER, this.TRIANGLE_VERTEX);
+        GL.bufferData(GL.ARRAY_BUFFER,
+            new Float32Array(this.vertex),
+            GL.STATIC_DRAW);
+
+
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.TRIANGLE_FACES);
+        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER,
+            new Uint16Array(this.faces),
+            GL.STATIC_DRAW);
+
+
+        this.child.forEach(obj => {
+            obj.setup();
+        });
+    }
+
+
+    render(VIEW_MATRIX, PROJECTION_MATRIX) {
+        GL.useProgram(this.SHADER_PROGRAM);
+        GL.bindBuffer(GL.ARRAY_BUFFER, this.TRIANGLE_VERTEX);
+        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.TRIANGLE_FACES);
+        GL.vertexAttribPointer(this._position, 3, GL.FLOAT, false, 4 * (3 + 3), 0);
+        GL.vertexAttribPointer(this._color, 3, GL.FLOAT, false, 4 * (3 + 3), 3 * 4);
+
+        GL.uniformMatrix4fv(this._PMatrix, false, PROJECTION_MATRIX);
+        GL.uniformMatrix4fv(this._VMatrix, false, VIEW_MATRIX);
+        GL.uniformMatrix4fv(this._MMatrix, false, this.MODEL_MATRIX);
+        GL.uniform1f(this._greyScality, 1);
+
+        GL.drawElements(GL.TRIANGLES, this.faces.length, GL.UNSIGNED_SHORT, 0);
+
+
+        GL.flush();
+
+
+        this.child.forEach(obj => {
+            obj.render(VIEW_MATRIX, PROJECTION_MATRIX);
+        });
+    }
+}
 // Richard Kamitono C14220267
 function generateEllipsoid(xrad, yrad, zrad, step, stack, red, green, blue, xtrans, ytrans, ztrans) {
     var vertices = [];
@@ -692,17 +814,18 @@ function generateParallelogramVertices(width, height, thickness, offsetX, offset
         -width / 2 + offsetX, 0.0 + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
 
         // Right face
-        width / 2, 0.0, 0.0, 0.0, 0.0, 0.0,
-        width / 2, 0.0, thickness, 0.0, 0.0, 0.0,
-        width / 2 - thickness, height, thickness, 0.0, 0.0, 0.0,
-        width / 2 - thickness, height, 0.0, 0.0, 0.0, 0.0,
+        width / 2 + offsetX, 0.0 + offsetY, 0.0 + offsetZ, 0.0, 0.0, 0.0,
+        width / 2 + offsetX, 0.0 + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
+        width / 2 - thickness + offsetX, height + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
+        width / 2 - thickness + offsetX, height + offsetY, 0.0 + offsetZ, 0.0, 0.0, 0.0,
 
         // Left face
-        -width / 2, 0.0, 0.0, 0.0, 0.0, 0.0,
-        -width / 2, 0.0, thickness, 0.0, 0.0, 0.0,
-        -width / 2 - thickness, height, thickness, 0.0, 0.0, 0.0,
-        -width / 2 - thickness, height, 0.0, 0.0, 0.0, 0.0
+        -width / 2 + offsetX, 0.0 + offsetY, 0.0 + offsetZ, 0.0, 0.0, 0.0,
+        -width / 2 + offsetX, 0.0 + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
+        -width / 2 - thickness + offsetX, height + offsetY, thickness + offsetZ, 0.0, 0.0, 0.0,
+        -width / 2 - thickness + offsetX, height + offsetY, 0.0 + offsetZ, 0.0, 0.0, 0.0
     ];
+    // console.log(vertices.length);
     return vertices;
 }
 function generateEyelidVertices(radius, sectorCount, stackCount, offsetX, offsetY, offsetZ) {
@@ -1237,128 +1360,71 @@ function generateBallFaces(stackCount, sectorCount) {
     }
     return indices;
 }
-class MyObject {
-    canvas = null;
-    vertex = [];
-    faces = [];
 
+// Environment
+function generateBase(step) {
+    var vertices = [];
+    var faces = [];
 
-    SHADER_PROGRAM = null;
-    _color = null;
-    _position = null;
+    // Vertices
+    for (var i = 0; i <= step; i++) {
+        var x = 7 * Math.cos((i / step) * 2 * Math.PI - Math.PI);
+        var y = 7 * Math.sin((i / step) * 2 * Math.PI - Math.PI);
+        var z = 0;
 
+        // Apply rotation around x-axis
+        var newX = x;
+        var newY = y * Math.cos(90) - z * Math.sin(90);
+        var newZ = y * Math.sin(90) + z * Math.cos(90);
 
-    _MMatrix = LIBS.get_I4();
-    _PMatrix = LIBS.get_I4();
-    _VMatrix = LIBS.get_I4();
-    _greyScality = 0;
+        x = newX;
+        y = newY;
+        z = newZ;
 
+        
+        vertices.push(x, y, z, 0.82, 0.63, 0.67);
+    }
+    for (var i = 0; i <= step; i++) {
+        var x = 7 * Math.cos((i / step) * 2 * Math.PI - Math.PI);
+        var y = 7 * Math.sin((i / step) * 2 * Math.PI - Math.PI);
+        var z = 0.5;
 
-    TRIANGLE_VERTEX = null;
-    TRIANGLE_FACES = null;
+        // Apply rotation around x-axis
+        var newX = x;
+        var newY = y * Math.cos(90) - z * Math.sin(90);
+        var newZ = y * Math.sin(90) + z * Math.cos(90);
 
+        x = newX;
+        y = newY;
+        z = newZ;
 
-    MODEL_MATRIX = LIBS.get_I4();
-
-
-    child = []
-
-
-    constructor(vertex, faces, source_shader_vertex, source_shader_fragment) {
-        this.vertex = vertex;
-        this.faces = faces;
-
-
-        var compile_shader = function (source, type, typeString) {
-            var shader = GL.createShader(type);
-            GL.shaderSource(shader, source);
-            GL.compileShader(shader);
-            if (!GL.getShaderParameter(shader, GL.COMPILE_STATUS)) {
-                alert("ERROR IN " + typeString + " SHADER: " + GL.getShaderInfoLog(shader));
-                return false;
-            }
-            return shader;
-        };
-
-        var shader_vertex = compile_shader(source_shader_vertex, GL.VERTEX_SHADER, "VERTEX");
-
-        var shader_fragment = compile_shader(source_shader_fragment, GL.FRAGMENT_SHADER, "FRAGMENT");
-
-        this.SHADER_PROGRAM = GL.createProgram();
-        GL.attachShader(this.SHADER_PROGRAM, shader_vertex);
-        GL.attachShader(this.SHADER_PROGRAM, shader_fragment);
-
-        GL.linkProgram(this.SHADER_PROGRAM);
-
-
-        //vao
-        this._color = GL.getAttribLocation(this.SHADER_PROGRAM, "color");
-        this._position = GL.getAttribLocation(this.SHADER_PROGRAM, "position");
-
-
-        //uniform
-        this._PMatrix = GL.getUniformLocation(this.SHADER_PROGRAM, "PMatrix"); //projection
-        this._VMatrix = GL.getUniformLocation(this.SHADER_PROGRAM, "VMatrix"); //View
-        this._MMatrix = GL.getUniformLocation(this.SHADER_PROGRAM, "MMatrix"); //Model
-        this._greyScality = GL.getUniformLocation(this.SHADER_PROGRAM, "greyScality");//GreyScality
-
-
-
-        GL.enableVertexAttribArray(this._color);
-        GL.enableVertexAttribArray(this._position);
-        GL.useProgram(this.SHADER_PROGRAM);
-
-
-
-
-        this.TRIANGLE_VERTEX = GL.createBuffer();
-        this.TRIANGLE_FACES = GL.createBuffer();
-
+        vertices.push(x, y, z, 0.82, 0.63, 0.67);
+    }
+    
+    // Faces
+    for (var j = 0; j < step - 1; j++) {
+        var a = 0 * step + j;
+        var b = a + 1;
+        var c = a + step + 1;
+        var d = c + 1;
+        faces.push(a, b, d, a, d, c);
+    }
+    for (var i = 1; i < step; i++) {
+        a = 0;
+        b = i;
+        c = i + 1;
+        faces.push(a, b, c);
+    }
+    for (var i = 102; i < step + 101; i++) {
+        a = 101;
+        b = i;
+        c = i + 1;
+        faces.push(a, b, c);
     }
 
-
-    setup() {
-        GL.bindBuffer(GL.ARRAY_BUFFER, this.TRIANGLE_VERTEX);
-        GL.bufferData(GL.ARRAY_BUFFER,
-            new Float32Array(this.vertex),
-            GL.STATIC_DRAW);
-
-
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.TRIANGLE_FACES);
-        GL.bufferData(GL.ELEMENT_ARRAY_BUFFER,
-            new Uint16Array(this.faces),
-            GL.STATIC_DRAW);
-
-
-        this.child.forEach(obj => {
-            obj.setup();
-        });
-    }
-
-
-    render(VIEW_MATRIX, PROJECTION_MATRIX) {
-        GL.useProgram(this.SHADER_PROGRAM);
-        GL.bindBuffer(GL.ARRAY_BUFFER, this.TRIANGLE_VERTEX);
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.TRIANGLE_FACES);
-        GL.vertexAttribPointer(this._position, 3, GL.FLOAT, false, 4 * (3 + 3), 0);
-        GL.vertexAttribPointer(this._color, 3, GL.FLOAT, false, 4 * (3 + 3), 3 * 4);
-
-        GL.uniformMatrix4fv(this._PMatrix, false, PROJECTION_MATRIX);
-        GL.uniformMatrix4fv(this._VMatrix, false, VIEW_MATRIX);
-        GL.uniformMatrix4fv(this._MMatrix, false, this.MODEL_MATRIX);
-        GL.uniform1f(this._greyScality, 1);
-
-        GL.drawElements(GL.TRIANGLES, this.faces.length, GL.UNSIGNED_SHORT, 0);
-
-
-        GL.flush();
-
-
-        this.child.forEach(obj => {
-            obj.render(VIEW_MATRIX, PROJECTION_MATRIX);
-        });
-    }
+    return { "vertices": vertices, "faces": faces };
 }
+
 function main() {
     var CANVAS = document.getElementById("myCanvas");
 
@@ -1469,10 +1535,13 @@ function main() {
     var MODEL_MATRIX2 = LIBS.get_I4();
     var MODEL_MATRIX3 = LIBS.get_I4();
     var MODEL_MATRIX4 = LIBS.get_I4();
-  
+    var MODEL_MATRIX5 = LIBS.get_I4();
+    var MODEL_MATRIX6 = LIBS.get_I4();
+    var MODEL_MATRIX7 = LIBS.get_I4();
+    var MODEL_MATRIX8 = LIBS.get_I4();
+    var MODEL_MATRIX9 = LIBS.get_I4();
 
-
-    LIBS.translateZ(VIEW_MATRIX, -20);
+    LIBS.translateZ(VIEW_MATRIX, -35);
 
     // Richard 
     var headRaw = generateEllipsoid(1.35, 1.16, 1.1, 100, 100, 0.43, 0.89, 0.28, 0, 0, 0);
@@ -1667,6 +1736,13 @@ function main() {
         20, 21, 22,
         20, 22, 23
     ];
+
+    let x = [];
+    x = generateBallFaces(18, 36);
+    for (let i = 0; i < x.length; i++) {
+        x.pop();
+    }
+
     var objectS = new MyObject(generateEllipticParaboloidVerticesS(1.2, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
     var object2S = new MyObject(generateBodyVertices(1.8, 36, 8), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
     var object3S = new MyObject(generateEyeBallVertices(0.4, 36, 18, 0.5, -1, 6.5), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
@@ -1674,13 +1750,24 @@ function main() {
     var object5S = new MyObject(generateEyeBallIrisVertices(0.15, 36, 18, -0.4, -1, 6.87), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
     var object6S = new MyObject(generateEyeBallIrisVertices(0.15, 36, 18, 0.4, -1, 6.87), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
     var object7S = new MyObject(generateUpperBeakVertices(0.5, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
-    var object8S = new MyObject(generateBottomBeakVertices(0.86, 36, 18), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
+    var object8S = new MyObject(generateBottomBeakVertices(0.86, 36, 18), x, shader_vertex_source, shader_fragment_source);
     var object9S = new MyObject(generateCheekVertices(0.45, 36, 18, 0.9, -1.65, 6.4), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
     var object10S = new MyObject(generateCheekVertices(0.45, 36, 18, -0.9, -1.65, 6.4), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
-    var object11S = new MyObject(generateEyelidVertices(0.4, 36, 18, -0.5, -0.89, 6.51), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
-    var object12S = new MyObject(generateEyelidVertices(0.4, 36, 18, 0.5, -0.89, 6.51), generateBallFaces(18, 36), shader_vertex_source, shader_fragment_source);
+    var object11S = new MyObject(generateEyelidVertices(0.4, 36, 18, -0.5, -0.89, 6.51), generateBallFaces(18 / 2.5 - 1, 36), shader_vertex_source, shader_fragment_source);
+    var object12S = new MyObject(generateEyelidVertices(0.4, 36, 18, 0.5, -0.89, 6.51), generateBallFaces(18 / 2.5 - 1, 36), shader_vertex_source, shader_fragment_source);
     var object13S = new MyObject(generateParallelogramVertices(0.6, 0.15, 0.1, 0.7, -0.5, 6.57), cube_faces, shader_vertex_source, shader_fragment_source);
     var object14S = new MyObject(generateParallelogramVertices(0.6, 0.15, 0.1, -0.7, -0.5, 6.57), cube_faces, shader_vertex_source, shader_fragment_source);
+    var featherS = generateCurvedTube(-0.05, -0.7, 5.3, 0.5, 0.15, 30, 170, 0, 0, 0);
+    var feather1S = generateCurvedTube(-0.25, -0.7, 4.8, 0.5, 0.15, 30, 170, 0, 0, 0);
+    var feather2S = generateCurvedTube(0.15, -0.7, 4.8, 0.5, 0.15, 30, 170, 0, 0, 0);
+    var tailFeatherS = generateCurvedTube(0.2, -3.4, 3.6, 1, 0.15, 30, 270, 0, 0, 0);
+    var tailFeather2S = generateCurvedTube(-0.3, -3.4, 3.6, 1, 0.15, 30, 270, 0, 0, 0);
+    var object16S = new MyObject(featherS, feather_faces, shader_vertex_source, shader_fragment_source);
+    var object17S = new MyObject(feather1S, feather_faces, shader_vertex_source, shader_fragment_source);
+    var object18S = new MyObject(feather2S, feather_faces, shader_vertex_source, shader_fragment_source);
+    var object19S = new MyObject(tailFeatherS, feather_faces, shader_vertex_source, shader_fragment_source);
+    var object20S = new MyObject(tailFeather2S, feather_faces, shader_vertex_source, shader_fragment_source);
+    
     objectS.child.push(object2S);
     objectS.child.push(object3S);
     objectS.child.push(object4S);
@@ -1694,8 +1781,16 @@ function main() {
     objectS.child.push(object12S);
     objectS.child.push(object13S);
     objectS.child.push(object14S);
+    objectS.child.push(object16S);
+    objectS.child.push(object17S);
+    objectS.child.push(object18S);
+    objectS.child.push(object19S);
+    objectS.child.push(object20S);
     objectS.setup();
 
+    var baseRaw = generateBase(100);
+    var base = new MyObject(baseRaw['vertices'], baseRaw['faces'], shader_vertex_source, shader_fragment_source);
+    base.setup();
 
     /*========================= DRAWING ========================= */
     GL.clearColor(0.0, 0.0, 0.0, 0.0);
@@ -1727,6 +1822,7 @@ function main() {
         MODEL_MATRIX4 = LIBS.get_I4();
         LIBS.rotateY(MODEL_MATRIX4, THETA);
         LIBS.rotateX(MODEL_MATRIX4, ALPHA);
+        LIBS.translateY(MODEL_MATRIX4, 2);
         head.MODEL_MATRIX = MODEL_MATRIX4;
         rightEar.MODEL_MATRIX = MODEL_MATRIX4;
         leftEar.MODEL_MATRIX = MODEL_MATRIX4;
@@ -1741,12 +1837,14 @@ function main() {
         LIBS.rotateY(MODEL_MATRIX2, THETA);
         LIBS.rotateX(MODEL_MATRIX2, ALPHA);
         LIBS.translateX(MODEL_MATRIX2, 4);
+        LIBS.translateY(MODEL_MATRIX2, 2);
 
         MODEL_MATRIX3 = LIBS.get_I4();
         LIBS.rotateZ(MODEL_MATRIX3, 3.14);
         LIBS.rotateY(MODEL_MATRIX3, THETA);
         LIBS.rotateX(MODEL_MATRIX3, ALPHA);
         LIBS.translateX(MODEL_MATRIX3, 4);
+        LIBS.translateY(MODEL_MATRIX3, 2);
    
         object.MODEL_MATRIX = MODEL_MATRIX2;
         object2.MODEL_MATRIX = MODEL_MATRIX2;
@@ -1761,7 +1859,7 @@ function main() {
         object11.MODEL_MATRIX = MODEL_MATRIX2;
         object12.MODEL_MATRIX = MODEL_MATRIX2;
         object13.MODEL_MATRIX = MODEL_MATRIX2;
-
+        
         object.render(VIEW_MATRIX, PROJECTION_MATRIX);
         
         // Steve
@@ -1772,7 +1870,7 @@ function main() {
         LIBS.rotateX(MODEL_MATRIX, ALPHA);
         LIBS.translateX(MODEL_MATRIX, -4);
         LIBS.translateZ(MODEL_MATRIX, -10);
-
+        LIBS.translateY(MODEL_MATRIX4, 10);
              
         objectS.MODEL_MATRIX = MODEL_MATRIX;
         object2S.MODEL_MATRIX = MODEL_MATRIX;
@@ -1788,7 +1886,23 @@ function main() {
         object12S.MODEL_MATRIX = MODEL_MATRIX;
         object13S.MODEL_MATRIX = MODEL_MATRIX;
         object14S.MODEL_MATRIX = MODEL_MATRIX;
+        object16S.MODEL_MATRIX = MODEL_MATRIX;
+        object17S.MODEL_MATRIX = MODEL_MATRIX;
+        object18S.MODEL_MATRIX = MODEL_MATRIX;
+        object19S.MODEL_MATRIX = MODEL_MATRIX;
+        object20S.MODEL_MATRIX = MODEL_MATRIX;
         objectS.render(VIEW_MATRIX, PROJECTION_MATRIX);
+
+        // Environment
+        MODEL_MATRIX5 = LIBS.get_I4();
+        LIBS.translateX(MODEL_MATRIX5,-10);
+        LIBS.translateY(MODEL_MATRIX5, -3);
+        base.MODEL_MATRIX = MODEL_MATRIX5;
+
+
+        base.render(VIEW_MATRIX, PROJECTION_MATRIX);
+
+        
 
         // // Combination Transformation (Translation & Rotation)
         // if (time >= 1000 && time < 3000){
